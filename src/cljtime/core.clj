@@ -114,7 +114,7 @@
            (quot 60)))
     :sec (format "%02d" (mod unix 60))
     :12hr (let [tfhr (quot (mod unix 86400) 3600)]
-            (cond (<= 12 tfhr 24) (- tfhr 12) 
+            (cond (<= 13 tfhr 24) (- tfhr 12) 
                    :else tfhr))
     :ampm (let [tfhr (quot (mod unix 86400) 3600)] 
             (cond (<= 12 tfhr 24) "PM" 

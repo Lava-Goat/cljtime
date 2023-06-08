@@ -127,8 +127,8 @@
               :else tfhr))
     :ampm (let 
            [tfhr (quot (mod unix 86400) 3600)] 
-            (cond = tfhr
-             (<= 12  24) "PM" 
+            (cond 
+             (<= 12 tfhr 24) "PM" 
               :else  "AM"))
     :utc true
     :lang lang})))
@@ -149,7 +149,7 @@
      (now :sec)
      "Z")))
 
-(defn rfc3339 
+(defn unix->rfc3339 
   ; YYYY-MM-DD hh:mm:ssZ
  [unix]
   (let [now (timeMap unix)]

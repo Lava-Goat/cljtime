@@ -15,22 +15,22 @@
  (timeMap unix "English"))
 
 ([unix lang]
- (let [month-day
+ (let [month-day ; We get these at the same time in the same algorithm
   (let [days (quot unix 86400)
-        dOlym (- days (* (quot days 1461) 1461))
-        r (let [s (mod unix 126230400)]
+        dOlym (- days (* (quot days 1461) 1461)) ; no. days into olmypiad
+        r (let [s (mod unix 126230400)] ; which year of the olmpiad?
             (cond (<= 0 s 31449600) 0
                   (<= 31449601 s 63072000) 1
                   (<= 63072001 s 94608000) 2 
                   (<= 94608001 s 126144000) 3))
-        d (cond (= r 0) (+ 1 dOlym)
+        d (cond (= r 0) (+ 1 dOlym) ; days into year depends on leap year
                 (= r 1) (- dOlym 364)
                 (= r 2) (- dOlym 730) 
                 (= r 3) (- dOlym 1095))
-        feb (cond (= r 2) 29 
+        feb (cond (= r 2) 29 ; only in year 2 ⩭ 1972 (year % 1970 = 2) 
                   :else 28)]
   (cond
-    (<= 1 d 31) [1 d] 
+    (<= 1 d 31) [1 d] ; Determine month by how many days we are into the year.
     (<= 1 (- d 31) feb) [2 (- d 31)]
     (<= 1 (- d 31 feb) 31) [3 (- d 31 feb)]
     (<= 1 (- d 62 feb) 30) [4 (- d 62 feb)]
@@ -66,13 +66,13 @@
                      4 "Lundi" 
                      5 "Mardi" 
                      6 "Mecredi"}}]
-         ((days lang) (mod (quot unix 86400) 7)))
-    :year (+ 1970 
-            (* 4 (quot unix 126230400)) 
-            (let [s (mod unix 126230400)]
+         ((days lang) (mod (quot unix 86400) 7))) ; weeks are constant
+    :year (+ 1970 ; epoch begins at 1970-01-01 00:00:00Z
+            (* 4 (quot unix 126230400)) ; olympiads are constant intervals
+            (let [s (mod unix 126230400)] ; (year - 1970) % 4 = ?
               (cond (<= 0 s 31449600) 0
                     (<= 31449601 s 63072000) 1 
-                    (<= 63072001 s 94608000) 2 
+                    (<= 63072001 s 94608000) 2 ; the leap year is year 2 
                     (<= 94608001 s 126144000) 3)))
     :month (format "%02d" (first month-day))
     :month-lang (let [months {"English" 
@@ -104,22 +104,22 @@
                   ((months lang) (first month-day)))
     :dayOfTheMonth-f (format "%02d" (second month-day))
     :dayOfTheMonth (second month-day)
-    :24hr (format "%02d"
+    :24hr (format "%02d" ; UTC hours are constantly 60 mins
            (-> unix
             (mod 86400)
             (quot 3600)))
-    :min (format "%02d" 
+    :min (format "%02d"  ; UTC minutes are constantly 60 secs
           (-> unix
            (mod 3600)
            (quot 60)))
-    :sec (format "%02d" (mod unix 60))
+    :sec (format "%02d" (mod unix 60)) ; UTC seconds are constant
     :12hr (let [tfhr (quot (mod unix 86400) 3600)]
-            (cond (<= 13 tfhr 24) (- tfhr 12) 
+            (cond (<= 13 tfhr 24) (- tfhr 12) ; 13 or noon dispalys incorrectly
                    :else tfhr))
     :ampm (let [tfhr (quot (mod unix 86400) 3600)] 
             (cond (<= 12 tfhr 24) "PM" 
                    :else  "AM"))
-    :utc true
+    :utc true ; To be changed when we deal with leap seconds and time zones.
     :lang lang})))
 
 (defn unix->iso8601 
